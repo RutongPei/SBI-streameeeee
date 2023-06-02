@@ -16,17 +16,17 @@ def chi_eval(r,phi,vphi,vz,M_sat,tmax,t_a,phi_a,rs_sat,pid):
     return chi
 
 
-r = 0.1
-phi = 250
-vphi = 35 
-vz = -10 
-M_sat = 0.001
-t_a = 0.25
-phi_a = -4
-rs_sat = 0.3
-pid=0
+r = 0.1 # impact parameter (distance from stream to sat)
+phi = 250 # angle around stream
+vphi = 35  # velocity around stream
+vz = -10  # velocity along stream
+M_sat = 0.001 # mass of subhalo in 1e10 Msun
+t_a = 0.25 # time since interaction in Gyr
+phi_a = -4 # interaction point along stream in deg, phi=0 is progenitor location (try -20 to 10)
+rs_sat = 0.3 # scale radius of subhalo, can be adjusted along with M_sat using equation 15 in erkal et al. 2015
+pid=0 # index included in saved filenames
 
-tmax=4
+tmax=4 # how long stream disrupts
 
 print('EVALUATED LIKELIHOOD: ', chi_eval(r,phi,vphi,vz,M_sat,tmax,t_a,phi_a,rs_sat,pid))
 
