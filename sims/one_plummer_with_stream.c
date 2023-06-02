@@ -27,7 +27,12 @@ gcc -lm -lgsl -lgslcblas -O3 -I"C:/cygwin64/usr/include" -L"C:/cygwin64/lib" -c 
 g++ -O3 -ffast-math -Isrc/ -c -o foo.o foo.cc  -Lobj -lPot -lOther -lm
 g++ -O3 -ffast-math -Isrc/  -lm -I"C:/cygwin64/usr/include" -L"C:/cygwin64/lib" -o a.out one_plummer_with_stream.o foo.o -lgsl -lgslcblas -Lobj -lPot -lOther
 
- */
+========Macbook
+gcc -lm -lgsl -lgslcblas -O3 -I/usr/local/include/gsl/include -L/usr/local/include/gsl/lib -c -o one_plummer_with_stream.o one_plummer_with_stream.c
+g++ -O3 -ffast-math -Isrc/ -c -o foo.o foo.cc  -Lobj -lPot -lOther -lm
+g++ -O3 -ffast-math -Isrc/  -lm -I/usr/local/include/gsl/include -L/usr/local/include/gsl -o a.out one_plummer_with_stream.o foo.o -lgsl -lgslcblas -Lobj -lPot -lOther
+
+*/
 
 //note that only first particle is massive
 int N = 1; //stores the current number of particles
