@@ -20,11 +20,11 @@ r = 0.1 # impact parameter in kpc (distance from stream to sat)
 phi = 250 # angle around stream in dec
 vphi = 35  # velocity around stream in km/s
 vz = -10  # velocity along stream in km/s
-M_sat = 0.001 # mass of subhalo in 1e10 Msun
+M_sat = 0.010 # mass of subhalo in 1e10 Msun
 t_a = 0.25 # time since interaction in Gyr
 phi_a = -4 # interaction point along stream in deg, phi=0 is progenitor location (try -20 to 10)
-rs_sat = 0.3 # scale radius of subhalo in kpc, can be adjusted along with M_sat using equation 15 in erkal et al. 2015
-pid=0 # index included in saved filenames
+rs_sat = 1.05 * (M_sat*10*10)**0.5 # scale radius of subhalo in kpc, can be adjusted along with M_sat using equation 15 in erkal et al. 2015
+pid=5 # index included in saved filenames
 
 tmax=4 # how long stream disrupts in Gyr
 
