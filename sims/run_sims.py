@@ -1,4 +1,4 @@
-from subhalo_impact import chi_eval
+# from subhalo_impact import chi_eval
 from multiprocessing import Process
 from multiprocessing import Pool
 import itertools
@@ -43,7 +43,12 @@ def run_sim(params):
     print()
     simulate_stream(r,phi,vphi,vz,M_sat,tmax,t_a,phi_a,rs_sat,pid)
 
-def calculate_pid(log_Msat, vz):
+
+def calculate_pid(logM_sat, vz):
+    pid = '%i'%(logM_sat*1000) + '%i'%(-1*vz*1000)
+    return int(pid)
+
+def calculate_pid_old(log_Msat, vz):
     pid = 0
     log_Msat_round = round(log_Msat, 3)
     vz_round = round(vz, 3)
@@ -64,6 +69,6 @@ def simulate_stream(r, phi, vphi, vz, M_sat, tmax, t_a, phi_a, rs_sat, pid):
 
 
 if __name__ == '__main__':
-    run_sims(nsims=1000)
+    run_sims(nsims=10000)
 
 
