@@ -88,6 +88,13 @@ def save_observables_txt(pid):
 def save_observables_hdf5(pid):
     data = np.genfromtxt(f'final_stream/final_stream_{pid}.txt')
     phi1,phi2,dist,pm1,pm2,vr = obs_from_pos6d(data[:,:3],data[:,3:6],R_phi12_radec)
+    phi1 = phi1.astype('float32')
+    phi2 = phi2.astype('float32')
+    dist = dist.astype('float32')
+    pm1 = pm1.astype('float32')
+    pm2 = pm2.astype('float32')
+    vr = vr.astype('float32')
+
     f = h5py.File(f'final_observables/{pid}.hdf5', 'w')
     f.create_dataset('phi1', data = phi1)
     f.create_dataset('phi2', data = phi2)
