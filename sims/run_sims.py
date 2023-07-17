@@ -96,13 +96,30 @@ def save_observables_hdf5(pid):
     vr = vr.astype('float32')
 
     f = h5py.File(f'final_observables/{pid}.hdf5', 'w')
-    f.create_dataset('phi1', data = phi1)
-    f.create_dataset('phi2', data = phi2)
-    f.create_dataset('dist', data = dist)
-    f.create_dataset('pm1', data = pm1)
-    f.create_dataset('pm2', data = pm2)
-    f.create_dataset('vr', data = vr)
+    f.create_dataset('phi1', data = phi1, compression = 'gzip')
+    f.create_dataset('phi2', data = phi2, compression = 'gzip')
+    f.create_dataset('dist', data = dist, compression = 'gzip')
+    f.create_dataset('pm1', data = pm1, compression = 'gzip')
+    f.create_dataset('pm2', data = pm2, compression = 'gzip')
+    f.create_dataset('vr', data = vr, compression = 'gzip')
     f.close()
+
+def read_observables_txt(txtfile):
+    data = np.genfromtxt(txtfile)
+    return data[0], data[1], data[2], data[3], data[4], data[5]
+
+def read_observables_hdf5(hdf5file):
+    f = h5py.File(hdf5file, 'r')
+    phi1 = np.array(f.get('phi1'))
+    phi2 = np.array(f.get('phi1'))
+    dist = np.array(f.get('dist'))
+    pm1 = np.array(f.get('phi1'))
+    pm2 = np.array(f.get('phi1'))
+    vr = np.array(f.get('vr'))
+    f.close()
+    return phi1, phi2, dist, pm1, pm2, vr
+
+
 
 def calculate_parameters_from_pid(pid):
     # pid as a string taken from filename
@@ -118,6 +135,3 @@ def calculate_parameters_from_pid(pid):
 
 if __name__ == '__main__':
     run_sims(nsims=10000)
-
-
-run_sims(nsims=2)
