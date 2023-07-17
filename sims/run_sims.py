@@ -134,4 +134,4 @@ def calculate_parameters_from_pid(pid):
     return log_Msat, vz
 
 if __name__ == '__main__':
-    run_sims(nsims=10000)
+    run_sims(nsims=10000) 
