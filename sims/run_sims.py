@@ -6,8 +6,13 @@ import itertools
 import initial_stream
 import subhalo_orbit
 import stream_impact
+from rotation_matrix import obs_from_pos6d
 import numpy as np
+<<<<<<< HEAD
 import os
+=======
+import h5py
+>>>>>>> 2d116b9ddb07ae25b9ce3433cb33e0f9efd62829
 
 # import sys
 
@@ -67,11 +72,74 @@ def simulate_stream(r, phi, vphi, vz, M_sat, tmax, t_a, phi_a, rs_sat, pid):
     SH_x, SH_y, SH_z, SH_vx, SH_vy, SH_vz, dunno = initial_stream.chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,t_a,tmax,int(pid))
     sat_x, sat_y, sat_z, sat_vx, sat_vy, sat_vz = subhalo_orbit.chi2_eval(SH_x, SH_y, SH_z, SH_vx, SH_vy, SH_vz,r,phi,vphi,vz,tmax,t_a,phi_a,int(pid))
     chi = stream_impact.chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15, sat_x, sat_y, sat_z, sat_vx, sat_vy, sat_vz, tmax,M_sat,rs_sat,int(pid))
+
     os.remove('orbits/orbit_%i.txt' %pid)
     os.remove('pre_impact/pre_impact_%i.txt' %pid)
     os.remove('final_coords/final_coords_%i.txt' %pid)
 
+    # save observables as a new file after simulating the stream
+   
+    # save_observables_hdf5(pid)
+    save_observables_hdf5(pid)
+
+
+R_phi12_radec = np.array([[0.83697865, 0.29481904, -0.4610298], 
+                          [0.51616778, -0.70514011, 0.4861566], 
+                          [0.18176238, 0.64487142, 0.74236331]])
+
+def save_observables_txt(pid):
+    data = np.genfromtxt(f'final_stream/final_stream_{pid}.txt')
+    phi1,phi2,dist,pm1,pm2,vr = obs_from_pos6d(data[:,:3],data[:,3:6],R_phi12_radec)
+    observables = np.vstack((phi1, phi2, dist, pm1, pm2, vr))
+    np.savetxt(f'final_observables/{pid}.txt', observables)
+
+def save_observables_hdf5(pid):
+    data = np.genfromtxt(f'final_stream/final_stream_{pid}.txt')
+    phi1,phi2,dist,pm1,pm2,vr = obs_from_pos6d(data[:,:3],data[:,3:6],R_phi12_radec)
+    phi1 = phi1.astype('float32')
+    phi2 = phi2.astype('float32')
+    dist = dist.astype('float32')
+    pm1 = pm1.astype('float32')
+    pm2 = pm2.astype('float32')
+    vr = vr.astype('float32')
+
+    f = h5py.File(f'final_observables/{pid}.hdf5', 'w')
+    f.create_dataset('phi1', data = phi1, compression = 'gzip')
+    f.create_dataset('phi2', data = phi2, compression = 'gzip')
+    f.create_dataset('dist', data = dist, compression = 'gzip')
+    f.create_dataset('pm1', data = pm1, compression = 'gzip')
+    f.create_dataset('pm2', data = pm2, compression = 'gzip')
+    f.create_dataset('vr', data = vr, compression = 'gzip')
+    f.close()
+
+def read_observables_txt(txtfile):
+    data = np.genfromtxt(txtfile)
+    return data[0], data[1], data[2], data[3], data[4], data[5]
+
+def read_observables_hdf5(hdf5file):
+    f = h5py.File(hdf5file, 'r')
+    phi1 = np.array(f.get('phi1'))
+    phi2 = np.array(f.get('phi1'))
+    dist = np.array(f.get('dist'))
+    pm1 = np.array(f.get('phi1'))
+    pm2 = np.array(f.get('phi1'))
+    vr = np.array(f.get('vr'))
+    f.close()
+    return phi1, phi2, dist, pm1, pm2, vr
+
+
+
+def calculate_parameters_from_pid(pid):
+    # pid as a string taken from filename
+    if pid[0]=='-':
+        log_Msat = -(int(pid[1:5])/1000)
+        vz = -(int(pid[5:])/1000)
+
+    else:
+        log_Msat = int(pid[:3])/1000
+        vz = -(int(pid[3:])/1000)
+
+    return log_Msat, vz
+
 if __name__ == '__main__':
-    run_sims(nsims=10000)
-
-
+    run_sims(nsims=10000) 
