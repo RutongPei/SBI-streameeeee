@@ -7,6 +7,7 @@ import initial_stream
 import subhalo_orbit
 import stream_impact
 import numpy as np
+import os
 
 # import sys
 
@@ -66,7 +67,9 @@ def simulate_stream(r, phi, vphi, vz, M_sat, tmax, t_a, phi_a, rs_sat, pid):
     SH_x, SH_y, SH_z, SH_vx, SH_vy, SH_vz, dunno = initial_stream.chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,t_a,tmax,int(pid))
     sat_x, sat_y, sat_z, sat_vx, sat_vy, sat_vz = subhalo_orbit.chi2_eval(SH_x, SH_y, SH_z, SH_vx, SH_vy, SH_vz,r,phi,vphi,vz,tmax,t_a,phi_a,int(pid))
     chi = stream_impact.chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15, sat_x, sat_y, sat_z, sat_vx, sat_vy, sat_vz, tmax,M_sat,rs_sat,int(pid))
-
+    os.remove('orbits/orbit_%i.txt' %pid)
+    os.remove('pre_impact/pre_impact_%i.txt' %pid)
+    os.remove('final_coords/final_coords_%i.txt' %pid)
 
 if __name__ == '__main__':
     run_sims(nsims=10000)
