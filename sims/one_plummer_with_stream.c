@@ -15,8 +15,8 @@ g++ -O3 -ffast-math -Isrc/ -c -o foo.o foo.cc  -Lobj -lPot -lOther -lm
 g++ -O3 -ffast-math -Isrc/  -lm -lgsl -lgslcblas -I/opt/local/include -L/opt/local/lib -o a.out one_plummer_with_stream.o foo.o -Lobj -lPot -lOther
 
 icc -lgsl -lgslcblas -I/opt/local/include -L/opt/local/lib -Ofast -c -o one_plummer_with_stream.o one_plummer_with_stream.c
-icc -Ofast -Isrc/ -c -o foo.o foo.cc -Lobj -lPot -lOther -lm 
-icc -Ofast -Isrc/ -lgsl -lgslcblas -I/opt/local/include -L/opt/local/lib -o a.out one_plummer_with_stream.o foo.o -lm -Lobj -lPot -lOther 
+icc -Ofast -Isrc/ -c -o foo.o foo.cc -Lobj -lPot -lOther -lm
+icc -Ofast -Isrc/ -lgsl -lgslcblas -I/opt/local/include -L/opt/local/lib -o a.out one_plummer_with_stream.o foo.o -lm -Lobj -lPot -lOther
 
 ========Linux
 gcc -lm -lgsl -lgslcblas -O3 -I/usr/local/include/gsl/include -L/usr/local/include/gsl/lib -c -o one_plummer_with_stream.o one_plummer_with_stream.c
@@ -212,11 +212,11 @@ int main(int argc, char *argv[])
   int pid = atoi(argv[26]);
   M_sat = atof(argv[27]);
   rs_sat = atof(argv[28]);
-  
+
   M_NFW = atof(argv[17]);
   rs_NFW = atof(argv[18]);
   c_NFW = atof(argv[19]);
-  
+
   M_LMC = atof(argv[7]);
   rs_LMC = atof(argv[8]);
   x_LMC[0] = atof(argv[9]);
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
     }
 
   double *pos_prog = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(pos_prog == NULL)
     {
       printf("Can't assign memory for pos_prog\n");
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     }
 
   double *vel_prog = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(vel_prog == NULL)
     {
       printf("Can't assign memory for vel_prog\n");
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
     }
 
   double *pos_lmc = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(pos_lmc == NULL)
     {
       printf("Can't assign memory for pos_lmc\n");
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
     }
 
   double *pos_mw = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(pos_mw == NULL)
     {
       printf("Can't assign memory for pos_mw\n");
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
     }
 
   double *vel_mw = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(vel_mw == NULL)
     {
       printf("Can't assign memory for vel_mw\n");
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
     }
 
   double *r_prog_lmc = malloc(NMAX_POS_PROG*sizeof(double));
-  
+
   if(r_prog_lmc == NULL)
     {
       printf("Can't assign memory for r_prog_lmc\n");
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
     }
 
   double *pos_sat = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(pos_sat == NULL)
     {
       printf("Can't assign memory for pos_sat\n");
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
     }
 
   double *vel_sat = malloc(3*NMAX_POS_PROG*sizeof(double));
-  
+
   if(vel_sat == NULL)
     {
       printf("Can't assign memory for vel_sat\n");
@@ -326,14 +326,14 @@ int main(int argc, char *argv[])
     }
 
   double *r_prog_sat = malloc(NMAX_POS_PROG*sizeof(double));
-  
+
   if(r_prog_sat == NULL)
     {
       printf("Can't assign memory for r_prog_sat\n");
       return -1;
     }
-  
-  
+
+
   double t_r_min[NMAX_r_min];
   int N_r_min=0;
   double r,r_prev,r_prev_2;
@@ -348,10 +348,10 @@ int main(int argc, char *argv[])
   //double vcom[3] = {44.2364676,-109.87367822,-15.846060985767631};//{44.446674611739233, -120.95723526722537, -15.182782258924757};
   double tmax = atof(argv[16])*1.0227; //5.*1.0227*pow(M_plum/(2.e-6),-1./3.);//5.1135;//7.1589;//5.1135;
   //tmax = ceil(tmax/0.00010227)*0.00010227;
- 
+
   printf("Impact pid: %d with M_sat=%f, rs_sat=%f,  \n", pid, M_sat, rs_sat);
 
- 
+
   double dv_stream = 1.;
   int N_insert=0;
   double N_insert_double = 0.;
@@ -371,9 +371,9 @@ int main(int argc, char *argv[])
   double *pos_sat_t = malloc(3*sizeof(double));
   double *vel_sat_t = malloc(3*sizeof(double));
   double *r_prog_sat_t = malloc(sizeof(double));
-  
+
   int sign;
-  
+
   double theta,theta_part;
 
   double E_rel;
@@ -385,16 +385,16 @@ int main(int argc, char *argv[])
   double r_min_sat;
   double v_r_min_sat;
   double t_rmin_sat;
-  
+
   double r_max,r_min;
   double dt_sat;
-  
+
   initialization_steps();
 
   /*****************************************************************/
   /*             FIRST INTEGRATE THE ORBIT BACKWARDS               */
   /*****************************************************************/
-    
+
   N+=1; // for LMC
   N+=1; // for MW
   N+=1; // for sat
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
     }
   r_prog_lmc[0] = dist(pdata[0].x,pdata[1].x);
   r_prog_sat[0] = dist(pdata[0].x,pdata[3].x);
-  
+
   num_pos_prog++;
 
   // fprintf(fileout,"%d %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f\n",steps,tmax-t,pdata[0].x[0],pdata[0].x[1],pdata[0].x[2],pdata[0].v[0],pdata[0].v[1],pdata[0].v[2],pdata[1].x[0],pdata[1].x[1],pdata[1].x[2],pdata[1].v[0],pdata[1].v[1],pdata[1].v[2],pdata[2].x[0],pdata[2].x[1],pdata[2].x[2],pdata[2].v[0],pdata[2].v[1],pdata[2].v[2],pdata[3].x[0],pdata[3].x[1],pdata[3].x[2],pdata[3].v[0],pdata[3].v[1],pdata[3].v[2]);
@@ -441,12 +441,12 @@ int main(int argc, char *argv[])
     {
       find_external_force(pdata,force,t);
       r_prev = dist(pdata[0].x,pdata[2].x);
-            
+
       dt = 0.0001*1.0227; // time steps are 100000 years. For this to work, the total time must be an integer multiple of 100000 years.
 
       if(t+dt >= tmax)
 	dt = tmax-t;
-      
+
       //KDK
       /******************/
       //kick
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
 	      printf("Found %d minimia but only space for %d\n",N_r_min+1,NMAX_r_min);
 	      exit(0);
 	    }
-	  
+
 	  t_r_min[N_r_min]=tmax-t-dt;
 	  N_r_min++;
 	}
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
 
       r_prev_2 = r_prev;
 
-      
+
 
       steps++;
 
@@ -520,9 +520,9 @@ int main(int argc, char *argv[])
   /*****************************************************************/
   /*                   NOW INTEGRATE FORWARDS!!!                   */
   /*****************************************************************/
-    
+
   // We will integrate one particle at a time which are injected at a certain time
-  
+
   N=N-1; // Get rid of the LMC
   N=N-1; // Get rid of the MW
   N=N-1; // Get rid of the sat
@@ -532,57 +532,57 @@ int main(int argc, char *argv[])
 
   for(peri_counter=0;peri_counter<N_r_min;peri_counter++)
     {
-      
+
       if(t_r_min[peri_counter] < 0.)
 	continue;
-      
+
       for(inject_counter=0;inject_counter<N_PER_PERI;inject_counter++)
 	{
 	  t_inject = gen_normal(t_r_min[peri_counter],SIGMA_T);
-	  
+
 	  if(t_inject > tmax || t_inject < 0.)
 	    continue;
-	  
+
 	  for(sign=0.;sign<2;sign++)
 	    {
-	      
+
 	      t=t_inject;
-	      
+
 	      M_plum = M_plum0*(1.+(lambda_fM-1.)*t/tmax);
-	      
+
 	      update_prog_pos(pos_prog_t,t,pos_prog);
 	      update_lmc_pos(pos_lmc_t,t,pos_lmc);
 	      update_prog_vel(vel_prog_t,t,vel_prog);
 	      update_mw_pos(pos_mw_t,t,pos_mw);
 	      update_mw_vel(vel_mw_t,t,vel_mw);
 	      update_sat_pos(pos_sat_t,t,pos_sat);
-	      	      
+
 	      for(axes=0;axes<3;axes++)
 		{
 		  pdata[0].x[axes] = pos_prog_t[axes];
 		  pdata[0].v[axes] = vel_prog_t[axes];
 		}
-	      
+
 	      dt_sat = find_external_force_forwards(pdata,force,t,pos_lmc_t,pos_mw_t,pos_sat_t);
-	      	      
+
 	      generate_stream(pdata, force, t, pos_prog_t, vel_prog_t,pos_mw_t,vel_mw_t,sign);
-	      
+
 	      // DKE edited until here
-	      
+
 	      clock_t start = clock();
-	      
+
 	      E_rel = E_rel_calc(pdata,0,pos_prog_t,vel_prog_t);
-	      
+
 	      //printf("E_rel = %f\n",E_rel);
-	      
+
 	      include_particle = 1;
 
 	      r_min_LMC = 1000.;
 	      r_min_sat = 1000.;
-	      	      
+
 	      r_max = 0.;
 	      r_min = 1000.;
-	      
+
 	      for(t_rmin_LMC = 0.; t_rmin_LMC < t; t_rmin_LMC += 0.0001*1.0227)
 		{
 		  update_r_prog_lmc(r_prog_lmc_t,t_rmin_LMC,r_prog_lmc);
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
 		      //printf("Getting r_min_LMC = %f\n",r_min_LMC);
 		    }
 		}
-	      
+
 	      t_rmin_LMC = 0.;
 
 	      for(t_rmin_sat = 0.; t_rmin_sat < t; t_rmin_sat += 0.0001*1.0227)
@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 		}
 
 	      t_rmin_sat = 0.;
-	      
+
 	      while(t < tmax)
 		{
       // ===============================================================================================================
@@ -622,28 +622,28 @@ int main(int argc, char *argv[])
 
 
 		  M_plum = M_plum0*(1.+(lambda_fM-1.)*t/tmax);
-		  
+
 		  dt = dt_max;
-		  
+
 		  dt_sat = find_external_force_forwards(pdata,force,t,pos_lmc_t,pos_mw_t,pos_sat_t);
 		  dt = min2(dt,eta*sqrt(dist(pdata[0].x,pos_mw_t)/mag(&force[0])));
-		  
+
 		  for(i=0;i<N;i++)
 		    {
 		      r_prev = dist(pdata[i].x,pos_mw_t);
 		      dt = min2(dt,eta*sqrt(r_prev/mag(&force[3*i])));
 		    }
-		  
+
 		  update_prog_pos(pos_prog_t,t,pos_prog);
 		  update_lmc_pos(pos_lmc_t,t,pos_lmc);
 		  update_mw_pos(pos_mw_t,t,pos_mw);
 		  dt = min2(dt,find_nbody_force_w_dt(pdata,force,pos_prog_t));
 		  dt = max2(dt,dt_min);
 		  dt = min2(dt,dt_sat);
-		  
+
 		  if(t+dt >= tmax)
 		    dt = tmax-t;
-		  
+
 		  if(r_min_LMC  > dist(pdata[0].x,pos_lmc_t))
 		    {
 		      r_min_LMC = dist(pdata[0].x,pos_lmc_t);
@@ -653,14 +653,14 @@ int main(int argc, char *argv[])
 
 		  update_sat_pos(pos_sat_t,t,pos_sat);
 		  update_sat_vel(vel_sat_t,t,vel_sat);
-		  
+
 		  if(r_min_sat  > dist(pdata[0].x,pos_sat_t))
 		    {
 		      r_min_sat = dist(pdata[0].x,pos_sat_t);
 		      v_r_min_sat = dist(pdata[0].v,vel_sat_t);
 		      t_rmin_sat = t-tmax;
 		    }
-		  
+
 		  //KDK
 		  /******************/
 		  //kick
@@ -684,9 +684,9 @@ int main(int argc, char *argv[])
 		      r_min_LMC = dist(pdata[0].x,pos_lmc_t);
 		      t_rmin_LMC = (t-tmax)*1.0227;
 		    }
-		  
+
 		  theta = atan2(pos_prog_t[1]-pos_mw_t[1],pos_prog_t[0]-pos_mw_t[0]);
-		  
+
 		  r = dist(pos_prog_t,pos_mw_t);
 
 		  if(dist(pdata[0].x,pos_mw_t) > r_max && t < tmax - 1.)
@@ -694,7 +694,7 @@ int main(int argc, char *argv[])
 
 		  if(dist(pdata[0].x,pos_mw_t) < r_min && t < tmax - 1.)
 		    r_min = dist(pdata[0].x,pos_mw_t);
-		  
+
 		  for(i=0;i<N;i++)
 		    {
 		      r_part = mag(pdata[i].x);
@@ -704,36 +704,36 @@ int main(int argc, char *argv[])
 			theta_part -= 2.*M_PI;
 		      else if(theta_part < -M_PI)
 			theta_part += 2.*M_PI;
-		      
+
 		      if(theta_part > M_PI/2. && pdata[i].theta < -M_PI/2.)
 			pdata[i].theta_phase -= 2.*M_PI;
 		      else if(theta_part < -M_PI/2. && pdata[i].theta > M_PI/2.)
 			pdata[i].theta_phase += 2.*M_PI;
-		      
+
 		      pdata[i].theta = theta_part;
 		    }
-		  
+
 		  /*i=0;
 		    update_prog_vel(vel_prog_t,t,vel_prog); // already drifted to the current position
-		    
+
 		    if(t-t_inject > 0.25 && dist(pdata[i].x,pos_prog_t) < r_lag_calc(pos_prog_t,vel_prog_t))
 		    {
 		    include_particle = 0;
 		    break;
 		    }*/
-		  
+
 		  //fprintf(fileout,"%d %.9f %.9f %.9f %.9f %.9f %.9f %.9f\n",steps,t,pdata[0].x[0],pdata[0].x[1],pdata[0].x[2],pdata[0].v[0],pdata[0].v[1],pdata[0].v[2]);
 		  steps++;
-		  
+
 		}
-	      
+
 	      clock_t end = clock();
-	      
+
 	      for(i=0;i<N;i++)
 		if(include_particle == 1)
 		  fprintf(fileout,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",pdata[i].x[0],pdata[i].x[1],pdata[i].x[2],pdata[i].v[0],pdata[i].v[1],pdata[i].v[2],pdata[i].t_strip,pdata[i].phase,pdata[i].theta+pdata[i].theta_phase,E_rel,(end - start)/(double)CLOCKS_PER_SEC,r_min_LMC,t_rmin_LMC,r_max,r_min,r_min_sat,v_r_min_sat,t_rmin_sat);
 	    }
-	  
+
 	}
     }
 
@@ -755,7 +755,7 @@ int main(int argc, char *argv[])
   free(vel_mw);
   free(pos_sat);
   free(vel_sat);
-  
+
   return 0;
 }
 
@@ -773,7 +773,7 @@ void initialization_steps()
   double theta_rot = l_rot*M_PI/180.;
   double phi_rot = M_PI/2.-b_rot*M_PI/180.;
 
-  
+
 
   M_rot[0][0] = cos(theta_rot)*cos(phi_rot);
   M_rot[0][1] = -sin(theta_rot);
@@ -852,13 +852,13 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
   double dR_mn;
   double rho,rho_0,lambda,v_rel,r_vmax,v_max,sigma,X_vel,rho_mn;
   int MN_counter;
-  
+
 
 #ifdef STATICBPL
   double gamma_store;
   double gamma_inc_store;
 #endif
-  
+
 #ifdef STATICNFW
   double nhatdotr;
 #endif //STATICNFW
@@ -872,7 +872,7 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 
   for(i=0;i<N;i++)
     {
-      
+
       dx = pdata[i].x[0]-pdata[2].x[0];
       dy = pdata[i].x[1]-pdata[2].x[1];
       dz = pdata[i].x[2]-pdata[2].x[2];
@@ -882,12 +882,12 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 	  dx = pdata[i].x[0]-pdata[2].x[0];
 	  dy = pdata[i].x[1]-pdata[2].x[1];
 	  dz = pdata[i].x[2]-pdata[2].x[2];
-	  
+
 	  for(MN_counter=0;MN_counter<n_MN;MN_counter++)
 	    {
-	      
+
 	      denom = pow(dx*dx+dy*dy+pow(a_MN[MN_counter]+sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]),2.0),1.5);
-	      
+
 	      force[3*i] -= G*M_MN[MN_counter]*dx/denom;
 	      force[3*i+1] -= G*M_MN[MN_counter]*dy/denom;
 	      force[3*i+2] -= G*M_MN[MN_counter]*dz/denom*(a_MN[MN_counter]+sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]))/sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]);
@@ -898,24 +898,24 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 #ifdef GALPOT_ALL
 
       // dPdR and dPdz are positive
-      
+
       R = sqrt(dx*dx+dy*dy);
       fall(R,dz,&dPdR,&dPdz);
 
       force[3*i]   += -dPdR*dx/R;
       force[3*i+1] += -dPdR*dy/R;
       force[3*i+2] += -dPdz;
-      
+
 #endif //GALPOT_ALL
-	  
+
 #ifdef STATICHQDE
 	  r = sqrt(dx*dx+dy*dy+dz*dz);
 	  force[3*i] -= G*M_HQ/pow(a_HQ+r,2.)*dx/r;
 	  force[3*i+1] -= G*M_HQ/pow(a_HQ+r,2.)*dy/r;
 	  force[3*i+2] -= G*M_HQ/pow(a_HQ+r,2.)*dz/r;
-	  
+
 #endif //STATICHQDE
-	  
+
 #ifdef STATICNFW
 	  nhatdotr = dx*cos(phi_NFW)*cos(theta_NFW)+dy*cos(phi_NFW)*sin(theta_NFW)+dz*sin(phi_NFW);
 	  r = sqrt(dx*dx+dy*dy+dz*dz+(pow(q_NFW,-2.)-1.)*pow(nhatdotr,2.));
@@ -923,24 +923,24 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 	  force[3*i+1] += -G*M_NFW*1./pow(r,3.)*1./(log(1.+c_NFW)-c_NFW/(1.+c_NFW))*(log(1.+r/rs_NFW)-r/(r+rs_NFW))*(dy+(pow(q_NFW,-2.)-1.)*nhatdotr*cos(phi_NFW)*sin(theta_NFW));
 	  force[3*i+2] += -G*M_NFW*1./pow(r,3.)*1./(log(1.+c_NFW)-c_NFW/(1.+c_NFW))*(log(1.+r/rs_NFW)-r/(r+rs_NFW))*(dz+(pow(q_NFW,-2.)-1.)*nhatdotr*sin(phi_NFW));
 #endif
-	  
-	  
+
+
 #ifdef STATICLOG
 	  r = sqrt(dx*dx+dy*dy+dz*dz);
 	  force[3*i] += -pow(vc_LOG,2.)/(r*r+rs_LOG*rs_LOG)*2.*dx;
 	  force[3*i+1] += -pow(vc_LOG,2.)/(r*r+rs_LOG*rs_LOG)*2.*dy;
 	  force[3*i+2] += -pow(vc_LOG,2.)/(r*r+rs_LOG*rs_LOG)*2.*dz;
 #endif
-	  
+
 #ifdef STATICLM2010
 	  denom = c1*dx*dx+c2*dy*dy+c3*dx*dy+pow(dz/qz_LM,2.)+pow(rhalo,2.);
 	  force[3*i] += -pow(vhalo,2.)*(2.*c1*dx+c3*dy)/denom;
 	  force[3*i+1] += -pow(vhalo,2.)*(2.*c2*dy+c3*dx)/denom;
 	  force[3*i+2] += -pow(vhalo,2.)*(2.*dz/pow(qz_LM,2.))/denom;
-	  
+
 #endif //STATICLM2010
-	  
-	  
+
+
 #ifdef STATICBPL
 	  r = sqrt(dx*dx+dy*dy+dz*dz);
 	  gamma_store = gsl_sf_gamma(3-BPL_alpha);
@@ -949,8 +949,8 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 	  force[3*i+1] += -G*BPL_M*(gamma_store-gamma_inc_store)/gamma_store*dy/pow(r,3.);
 	  force[3*i+2] += -G*BPL_M*(gamma_store-gamma_inc_store)/gamma_store*dz/pow(r,3.);
 	  //force[3*i+2] += -G*BPL_M*(gsl_sf_gamma(3-BPL_alpha)-gsl_sf_gamma_inc(3-BPL_alpha,r/BPL_r))/gsl_sf_gamma(3-BPL_alpha)*dz/pow(r,3.);
-#endif 
-	  
+#endif
+
 #ifdef STATICBOWDENROT
 	  dx = 0.;
 	  for(axes1=0;axes1<3;axes1++)
@@ -960,23 +960,23 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 	    dy += M_rot_inv[1][axes1]*(pdata[i].x[axes1]-pdata[2].x[axes1]);
 	  dz = 0.;
 	  for(axes1=0;axes1<3;axes1++)
-	    dz += M_rot_inv[2][axes1]*(pdata[i].x[axes1]-pdata[2].x[axes1]);      
-	  
+	    dz += M_rot_inv[2][axes1]*(pdata[i].x[axes1]-pdata[2].x[axes1]);
+
 	  r = sqrt(dx*dx+dy*dy+dz*dz);
 	  mdpsiNFWdr = -4.*M_PI*G*rho0_NFW*pow(rs_NFW,3.)/pow(r,2.)*log(1.+r/rs_NFW)+4.*M_PI*G*rho0_NFW*pow(rs_NFW,2.)/r*1./(1.+r/rs_NFW);
 	  mdpsiy20dr = -4.*M_PI*G*rho1_y20*pow(r1_y20,3.)/pow(r+r1_y20,2.)*(1.5*pow(dz/r,2.)-0.5)+8.*M_PI*G*rho1_y20*pow(r1_y20,3.)*r/pow(r+r1_y20,3.)*(1.5*pow(dz/r,2.)-0.5)+12.*M_PI*G*rho1_y20*pow(r1_y20,3.)*r/pow(r+r1_y20,2.)*pow(dz,2.)/pow(r,3.);
-	  
+
 	  a_inertial[0] = dx/r*(mdpsiNFWdr+mdpsiy20dr);
 	  a_inertial[1] = dy/r*(mdpsiNFWdr+mdpsiy20dr);
 	  a_inertial[2] = dz/r*(mdpsiNFWdr+mdpsiy20dr) - 12.*M_PI*G*rho1_y20*pow(r1_y20,3.)*r/pow(r+r1_y20,2.)*dz/pow(r,2.);
-	  
+
 	  for(axes1=0;axes1<3;axes1++)
 	    a_rot[axes1] = 0.;
-	  
+
 	  for(axes1=0;axes1<3;axes1++)
 	    for(axes2=0;axes2<3;axes2++)
 	      a_rot[axes1] += M_rot[axes1][axes2]*a_inertial[axes2];
-	  
+
 	  for(axes1=0;axes1<3;axes1++)
 	    for(axes2=0;axes2<3;axes2++)
 	      force[3*i+axes1] += M_rot[axes1][axes2]*a_inertial[axes2];
@@ -990,7 +990,7 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 	  dy = pdata[i].x[1]-pdata[3].x[1];
 	  dz = pdata[i].x[2]-pdata[3].x[2];
 	  r = sqrt(dx*dx+dy*dy+dz*dz);
-	  
+
 	  force[3*i]   -= G*M_sat/pow(r*r+rs_sat*rs_sat,1.5)*dx;
 	  force[3*i+1] -= G*M_sat/pow(r*r+rs_sat*rs_sat,1.5)*dy;
 	  force[3*i+2] -= G*M_sat/pow(r*r+rs_sat*rs_sat,1.5)*dz;
@@ -1004,55 +1004,55 @@ void find_external_force(struct pdata_struct *pdata, double *force, double t)
 	  dy = pdata[i].x[1]-pdata[1].x[1];
 	  dz = pdata[i].x[2]-pdata[1].x[2];
 	  r = sqrt(dx*dx+dy*dy+dz*dz);
-	  
+
 	  force[3*i] -= G*M_LMC/pow(r+rs_LMC,2.)*dx/r;
 	  force[3*i+1] -= G*M_LMC/pow(r+rs_LMC,2.)*dy/r;
 	  force[3*i+2] -= G*M_LMC/pow(r+rs_LMC,2.)*dz/r;
 	}
     }
-      
+
   dx = pdata[1].x[0]-pdata[2].x[0];
   dy = pdata[1].x[1]-pdata[2].x[1];
   dz = pdata[1].x[2]-pdata[2].x[2];
   r = sqrt(dx*dx+dy*dy+dz*dz);
-      
-      
-      
+
+
+
   rho_0 = M_NFW/(4.*M_PI*pow(rs_NFW,3.))*1./(log(1.+c_NFW)-c_NFW/(1.+c_NFW));
-  //rho0_NFW;//M_NFW/(4.*M_PI*pow(rs_NFW,3.))*1./(log(1.+c_NFW)-c_NFW/(1.+c_NFW));                                                    
-  
+  //rho0_NFW;//M_NFW/(4.*M_PI*pow(rs_NFW,3.))*1./(log(1.+c_NFW)-c_NFW/(1.+c_NFW));
+
   rho = rho_0/(r/rs_NFW*pow(1.+r/rs_NFW,2.));
-  
+
   if(rs_LMC > 8.)
     lambda = r/(2.2*rs_LMC-14.);
   else
     lambda = r/(0.45*rs_LMC);
-  
+
   //lambda = r/(1.4*rs_LMC);
-  
+
   v_rel = dist(pdata[1].v,pdata[2].v);
   r_vmax = 2.16258*rs_NFW;
   v_max = sqrt(G*M_NFW/r_vmax*(log(1.+r_vmax/rs_NFW)-r_vmax/(r_vmax+rs_NFW))/(log(1.+c_NFW)-c_NFW/(1.+c_NFW)));
   //v_max = sqrt(G*rho0_NFW*4.*M_PI*pow(rs_NFW,3.)/r_vmax*(log(1.+r_vmax/rs_NFW)-r_vmax/(r_vmax+rs_NFW)));
   sigma = v_max*1.4393*pow(r/rs_NFW,0.354)/(1.+1.1756*pow(r/rs_NFW,0.725));
   X_vel = v_rel/(sqrt(2.)*sigma);
-  
+
   dR_mn = sqrt(dx*dx+dy*dy);
   rho_mn = 0.;
   for(MN_counter = 0; MN_counter<n_MN; MN_counter++)
     {
-      
+
       rho_mn += (b_MN[MN_counter]*b_MN[MN_counter]*M_MN[MN_counter])/(4.*M_PI)*(a_MN[MN_counter]*dR_mn*dR_mn+(a_MN[MN_counter] + 3.*sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]))*pow(a_MN[MN_counter] + sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]),2.))/(pow(dR_mn*dR_mn+pow(a_MN[MN_counter] + sqrt(dz*dz + b_MN[MN_counter]*b_MN[MN_counter]),2.),2.5)*pow(dz*dz+b_MN[MN_counter]*b_MN[MN_counter],1.5));
     }
-  //printf("lambda = %f\n",lambda);                                                                                                         
-  //printf("gsl_sf_erf(X_vel) = %f\n",gsl_sf_erf(X_vel));          
-  
-  
-  
+  //printf("lambda = %f\n",lambda);
+  //printf("gsl_sf_erf(X_vel) = %f\n",gsl_sf_erf(X_vel));
+
+
+
   if(lambda >= 1. && r < 250.)
     for(i=0;i<3;i++)
       force[3+i]+=4.*M_PI*pow(G,2.)*(M_LMC)*(rho+rho_mn)*log(lambda)/pow(v_rel,3.)*(gsl_sf_erf(X_vel)-2.*X_vel/sqrt(M_PI)*exp(-pow(X_vel,2)))*(pdata[1].v[i]-pdata[2].v[i]);
-  
+
 
 
 #endif
@@ -1073,7 +1073,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
   double gamma_store;
   double gamma_inc_store;
 #endif
-  
+
 #ifdef STATICNFW
   double nhatdotr;
 #endif //STATICNFW
@@ -1098,7 +1098,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
       for(MN_counter=0;MN_counter<n_MN;MN_counter++)
 	{
 	  denom = pow(dx*dx+dy*dy+pow(a_MN[MN_counter]+sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]),2.0),1.5);
-	  
+
 	  force[3*i] -= G*M_MN[MN_counter]*dx/denom;
 	  force[3*i+1] -= G*M_MN[MN_counter]*dy/denom;
 	  force[3*i+2] -= G*M_MN[MN_counter]*dz/denom*(a_MN[MN_counter]+sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]))/sqrt(dz*dz+b_MN[MN_counter]*b_MN[MN_counter]);
@@ -1109,14 +1109,14 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
 #ifdef GALPOT_ALL
 
       // dPdR and dPdz are positive
-      
+
       R = sqrt(dx*dx+dy*dy);
       fall(R,dz,&dPdR,&dPdz);
 
       force[3*i]   += -dPdR*dx/R;
       force[3*i+1] += -dPdR*dy/R;
       force[3*i+2] += -dPdz;
-      
+
 #endif //GALPOT_ALL
 
 #ifdef STATICHQDE
@@ -1159,7 +1159,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
       force[3*i+1] += -G*BPL_M*(gamma_store-gamma_inc_store)/gamma_store*dy/pow(r,3.);
       force[3*i+2] += -G*BPL_M*(gamma_store-gamma_inc_store)/gamma_store*dz/pow(r,3.);
       //force[3*i+2] += -G*BPL_M*(gsl_sf_gamma(3-BPL_alpha)-gsl_sf_gamma_inc(3-BPL_alpha,r/BPL_r))/gsl_sf_gamma(3-BPL_alpha)*dz/pow(r,3.);
-#endif 
+#endif
 
 #ifdef STATICBOWDENROT
       dx = 0.;
@@ -1170,8 +1170,8 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
 	dy += M_rot_inv[1][axes1]*(pdata[i].x[axes1]-pos_mw_t[axes1]);
       dz = 0.;
       for(axes1=0;axes1<3;axes1++)
-	dz += M_rot_inv[2][axes1]*(pdata[i].x[axes1]-pos_mw_t[axes1]);      
-				   
+	dz += M_rot_inv[2][axes1]*(pdata[i].x[axes1]-pos_mw_t[axes1]);
+
       r = sqrt(dx*dx+dy*dy+dz*dz);
       mdpsiNFWdr = -4.*M_PI*G*rho0_NFW*pow(rs_NFW,3.)/pow(r,2.)*log(1.+r/rs_NFW)+4.*M_PI*G*rho0_NFW*pow(rs_NFW,2.)/r*1./(1.+r/rs_NFW);
       mdpsiy20dr = -4.*M_PI*G*rho1_y20*pow(r1_y20,3.)/pow(r+r1_y20,2.)*(1.5*pow(dz/r,2.)-0.5)+8.*M_PI*G*rho1_y20*pow(r1_y20,3.)*r/pow(r+r1_y20,3.)*(1.5*pow(dz/r,2.)-0.5)+12.*M_PI*G*rho1_y20*pow(r1_y20,3.)*r/pow(r+r1_y20,2.)*pow(dz,2.)/pow(r,3.);
@@ -1182,7 +1182,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
 
       for(axes1=0;axes1<3;axes1++)
 	a_rot[axes1] = 0.;
-      
+
       for(axes1=0;axes1<3;axes1++)
 	for(axes2=0;axes2<3;axes2++)
 	  a_rot[axes1] += M_rot[axes1][axes2]*a_inertial[axes2];
@@ -1197,7 +1197,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
       dy = pdata[i].x[1]-pos_lmc_t[1];
       dz = pdata[i].x[2]-pos_lmc_t[2];
       r = sqrt(dx*dx+dy*dy+dz*dz);
-      
+
       force[3*i]   -= G*M_LMC/pow(r+rs_LMC,2.)*dx/r;
       force[3*i+1] -= G*M_LMC/pow(r+rs_LMC,2.)*dy/r;
       force[3*i+2] -= G*M_LMC/pow(r+rs_LMC,2.)*dz/r;
@@ -1208,7 +1208,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
       dy = pdata[i].x[1]-pos_sat_t[1];
       dz = pdata[i].x[2]-pos_sat_t[2];
       r = sqrt(dx*dx+dy*dy+dz*dz);
-      
+
       force[3*i]   -= G*M_sat/pow(r*r+rs_sat*rs_sat,1.5)*dx;
       force[3*i+1] -= G*M_sat/pow(r*r+rs_sat*rs_sat,1.5)*dy;
       force[3*i+2] -= G*M_sat/pow(r*r+rs_sat*rs_sat,1.5)*dz;
@@ -1216,7 +1216,7 @@ double find_external_force_forwards(struct pdata_struct *pdata, double *force, d
       dt_sat = eta*sqrt(pow(r*r+rs_sat*rs_sat,1.5)/(G*M_sat));
 #endif
 
-      
+
     }
 
   return dt_sat;
@@ -1269,7 +1269,7 @@ void generate_stream(struct pdata_struct *pdata, double *force, double t, double
   //M_enc = M_enc*r_gal*r_gal/G;
   double r_lag = r_lag_calc(pos_prog_t,vel_prog_t,pos_mw_t,vel_mw_t); //r_gal*pow(M_plum/(2.*M_enc),1./3.);
   double v1,v2,s;
-  
+
   double omega,r;
   r = dist(pos_prog_t,pos_mw_t);
 
@@ -1280,18 +1280,18 @@ void generate_stream(struct pdata_struct *pdata, double *force, double t, double
       x_rel[i] = pos_prog_t[i] - pos_mw_t[i];
       v_rel[i] = vel_prog_t[i] - vel_mw_t[i];
     }
-  
+
   omega = sqrt(  pow(x_rel[0]*v_rel[1]-x_rel[1]*v_rel[0],2.) + pow(x_rel[0]*v_rel[2]-x_rel[2]*v_rel[0],2.) + pow(x_rel[1]*v_rel[2]-x_rel[2]*v_rel[1],2.) )/( r*r );
-  
-  //double sigma_lag = sqrt(2.5)*0.9*pow(M_plum/(1.e-5),0.25)*pow(omega/44.,1./3.); 
+
+  //double sigma_lag = sqrt(2.5)*0.9*pow(M_plum/(1.e-5),0.25)*pow(omega/44.,1./3.);
   double sigma_lag = lambda_vlag*sqrt(1./3.*G*M_plum/sqrt(r_lag*r_lag+sigma_plum*sigma_plum));
 // sqrt(1./3.*G*M_plum/sqrt(r_lag*r_lag+sigma_plum*sigma_plum));//sigma_vel;//0.25*sqrt(G*M_plum/(3.*r_lag));
 
-  double sign; 
+  double sign;
 
 
 
-  
+
   if(leading_or_trailing==1)
     sign = 1.;
   else
@@ -1303,19 +1303,19 @@ void generate_stream(struct pdata_struct *pdata, double *force, double t, double
 	{
 	  pdata[0].x[i] = x_rel[i]-sign*x_rel[i]/r_gal*r_lag+pos_mw_t[i];
 	  pdata[0].t_strip = t;
-	  
+
 	  pdata[0].phase = -sign*r_lag;
 	  pdata[0].theta = 0.;
 	  pdata[0].theta_phase = 0.;
-	  
-	  do 
+
+	  do
 	    {
 	      v1 = 2.0 * ((float) rand()/RAND_MAX) - 1.0;
 	      v2 = 2.0 * ((float) rand()/RAND_MAX) - 1.0;
-	      
+
 	      s = v1*v1 + v2*v2;
 	    }while ( s >= 1.0 || s == 0);
-	  
+
 	  pdata[0].v[i] = v_rel[i]*(1.-lambda_vfrac*sign*r_lag/r_gal)+sigma_lag*v1*sqrt(-2.0*log(s)/s) + vel_mw_t[i];
 	  //pdata[0].v[i] = v_rel[i]*(1.-lambda_vfrac*sign*r_lag/r_gal)+sigma_lag*rand_num[rand_counter]+vel_mw_t[i];
 	}
@@ -1352,7 +1352,7 @@ void update_lmc_pos(double *pos_lmc_t, double t, double *pos_lmc)
       for(axes=0;axes<3;axes++)
 	pos_lmc_t[axes] = pos_lmc[3*(num_pos_prog-counter-1)+axes];
     }
-	  
+
 }
 
 
@@ -1386,7 +1386,7 @@ void update_mw_pos(double *pos_mw_t, double t, double *pos_mw)
       for(axes=0;axes<3;axes++)
 	pos_mw_t[axes] = pos_mw[3*(num_pos_prog-counter-1)+axes];
     }
-	  
+
 }
 
 void update_mw_vel(double *vel_mw_t, double t, double *vel_mw)
@@ -1447,7 +1447,7 @@ void update_sat_pos(double *pos_sat_t, double t, double *pos_sat)
       for(axes=0;axes<3;axes++)
 	pos_sat_t[axes] = pos_sat[3*(num_pos_prog-counter-1)+axes];
     }
-	  
+
 }
 
 void update_sat_vel(double *vel_sat_t, double t, double *vel_sat)
@@ -1492,7 +1492,7 @@ double d2phidr2_HQ(double r)
 
 double d2phidR2_MN(double R, double z)
 {
-  
+
   double denom;
   double total=0;
   int i_MN;
@@ -1510,13 +1510,13 @@ double d2phidRdz_MN(double R, double z)
   double denom;
   double total=0.;
   int i_MN;
-  
+
   for(i_MN=0;i_MN<n_MN;i_MN++)
     {
       denom = pow(R,2.)+pow(a_MN[i_MN]+sqrt(z*z+b_MN[i_MN]*b_MN[i_MN]),2.);
       total += -3.*G*M_MN[i_MN]*(a_MN[i_MN]+sqrt(z*z+b_MN[i_MN]*b_MN[i_MN]))*z*R/(pow(denom,2.5)*sqrt(z*z+b_MN[i_MN]*b_MN[i_MN]));
     }
-  
+
   return total;
 
 }
@@ -1588,7 +1588,7 @@ double r_lag_calc(double *pos_prog_t, double *vel_prog_t, double *pos_mw_t, doub
 
   R = sqrt( pow(pos_prog_t[0]-pos_mw_t[0],2.)+pow(pos_prog_t[1]-pos_mw_t[1],2.) );
   z = pos_prog_t[2]-pos_mw_t[2];
-  
+
   double omega;
 
   double x_rel[3],v_rel[3];
@@ -1600,9 +1600,9 @@ double r_lag_calc(double *pos_prog_t, double *vel_prog_t, double *pos_mw_t, doub
     }
 
   r = dist(pos_prog_t,pos_mw_t);
-  
+
   omega = sqrt(  pow(x_rel[0]*v_rel[1]-x_rel[1]*v_rel[0],2.) + pow(x_rel[0]*v_rel[2]-x_rel[2]*v_rel[0],2.) + pow(x_rel[0]*v_rel[2]-x_rel[2]*v_rel[0],2.) )/( r*r );
-  
+
   return pow( G*M_plum/(omega*omega - d2phidr2(R,z)), 1./3.);
 }
 
@@ -1620,9 +1620,9 @@ double pot_MN(double R, double z)
 {
   double total_phi,denom;
   int i_MN;
-  
+
   total_phi = 0.;
-  
+
   for(i_MN=0;i_MN<n_MN;i_MN++)
     {
       denom = pow(R,2.)+pow(a_MN[i_MN]+sqrt(z*z+b_MN[i_MN]*b_MN[i_MN]),2.);
@@ -1651,10 +1651,10 @@ double E_rel_calc(struct pdata_struct *pdata, int counter, double *pos_prog_t, d
 
   r_rel = dist(pdata[counter].x,pos_prog_t);
 
-  
-  
+
+
   return 0.5*pow(dist(pdata[counter].v,vel_prog_t),2.) - G*M_plum/sqrt(r_rel*r_rel+sigma_plum*sigma_plum);
-  
+
 
 }
 

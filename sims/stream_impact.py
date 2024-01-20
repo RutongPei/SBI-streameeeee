@@ -1,59 +1,36 @@
-import numpy as np
-#import matplotlib
-#matplotlib.use('agg')
-#import matplotlib.pyplot as plt
+
 import os
+import subprocess
 from os.path import join
 
 import astropy.units as u
-from astropy.coordinates import SkyCoord
-
-import numpy
-# from cv_coord import cv_coord
-
-import scipy.optimize as sopt
-
 import gal_uvw
-
-# import vcirc
-
-# import scipy.interpolate as sinterp
-
-# import astropy.io.fits as afits
+import numpy
+import numpy as np
 import scipy
-
+import scipy.optimize as sopt
+from astropy.coordinates import SkyCoord
+from astropy.io import fits
 from rotation_matrix import phi12_rotmat, pmphi12
 
-from astropy.io import fits
-# import csv
+DEFAULT_BIN_PATH = "./binaries/stream_plummer.out"
 
+# DEFINE CONSTANTS
 M_NFW = 80.
 q_NFW = 1.
 rs_NFW = 16.
-
 phi1_prog = 0.
 phi2_prog = 0.
-
 mu_phi2_prog = 0.
-
-R_phi12_radec = np.array([[0.83697865, 0.29481904, -0.4610298], 
-                          [0.51616778, -0.70514011, 0.4861566], 
+R_phi12_radec = np.array([[0.83697865, 0.29481904, -0.4610298],
+                          [0.51616778, -0.70514011, 0.4861566],
                           [0.18176238, 0.64487142, 0.74236331]])
-
 a_g = np.array([[-0.0548755604, +0.4941094279, -0.8676661490],
-                [-0.8734370902, -0.4448296300, -0.1980763734], 
+                [-0.8734370902, -0.4448296300, -0.1980763734],
                 [-0.4838350155, 0.7469822445, +0.4559837762]])
-
 G = 43007.105731706317
-
 l_lmc = 280.4652*np.pi/180.
 b_lmc = -32.8884*np.pi/180.
-
-'''np.random.seed(732)
-mcmillan = np.genfromtxt('../ProductionRunBig2.tab')
-mcmillan_rows  = np.random.choice(len(mcmillan),100,replace=False)
-pid = 9
-mcm = mcmillan[mcmillan_rows[pid]]'''
 
 mcm = np.array([ 6.79343e+08,  2.82344e+00,  3.00000e-01,  0.00000e+00,
         0.00000e+00,  2.31801e+08,  2.95513e+00,  9.00000e-01,
@@ -96,11 +73,14 @@ rs = mcm[30]
 
 fileout.close()
 
-def chi2_eval(mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog,dist_prog,phi2_prog,M_LMC,x_sat,y_sat,z_sat,vx_sat,vy_sat,vz_sat,tmax,M_sat,sr,pid):
+def chi2_eval(
+    mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog,dist_prog, phi2_prog, M_LMC,
+    x_sat, y_sat, z_sat, vx_sat, vy_sat, vz_sat, tmax, M_sat, sr, pid,
+    bin_path=DEFAULT_BIN_PATH):
 
     # M_sat = 0.001
     print("Impact with scale radius: ",sr)
-    
+
     mu_alpha_lmc = np.random.normal(1.91,0.*0.02)
     mu_delta_lmc = np.random.normal(0.229,0.*0.047)
     rv_lmc = np.random.normal(262.2,0.*3.4)
@@ -113,81 +93,98 @@ def chi2_eval(mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog,dist_prog,phi2_prog,M_L
 
     Mprog = 2.e-6
 
-    lhood = chi2_worker(mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog, dist_prog, phi2_prog,  mu_alpha_lmc, mu_delta_lmc, rv_lmc, dist_lmc, M_LMC,rs_LMC, Mprog, tmax, x_sat,y_sat,z_sat,vx_sat,vy_sat,vz_sat,pid,M_sat, sr)
+    lhood = chi2_worker(
+        mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog, dist_prog, phi2_prog,
+        mu_alpha_lmc, mu_delta_lmc, rv_lmc, dist_lmc, M_LMC,rs_LMC, Mprog,
+        tmax, x_sat,y_sat,z_sat,vx_sat,vy_sat,vz_sat,pid,M_sat, sr,
+        bin_path=bin_path
+    )
     return lhood
-def chi2_worker(mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog, dist_prog, phi2_prog, mu_alpha_lmc, mu_delta_lmc, rv_lmc, dist_lmc, M_LMC, rs_LMC, Mprog, tmax, x_sat,y_sat,z_sat,vx_sat,vy_sat,vz_sat, pid,M_sat,sr):
 
-    def loglikelihood(phi,phiM,errphiM):    
+def chi2_worker(
+    mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog, dist_prog, phi2_prog,
+    mu_alpha_lmc, mu_delta_lmc, rv_lmc, dist_lmc, M_LMC, rs_LMC, Mprog, tmax,
+    x_sat, y_sat, z_sat, vx_sat, vy_sat, vz_sat, pid, M_sat, sr,
+    bin_path=DEFAULT_BIN_PATH
+):
+
+    def loglikelihood(phi,phiM,errphiM):
         llh = np.sum(np.log((1/((2*np.pi*errphiM**2)**0.5)))-(((phiM-phi)**2)/(2*errphiM**2)))
         return llh
-    
+
     def loglikelihoodQ(phi,phiM,errphiM):
         llh = np.sum(np.log((1/((2*np.pi*(errphiM**2+4))**0.5)))-(((phiM-phi)**2)/(2*(errphiM**2+4))))
         return llh
 
-    # plt.clf()
-
-    vec_phi12_prog = np.array([np.cos(phi1_prog*np.pi/180.)*np.cos(phi2_prog*np.pi/180.),np.sin(phi1_prog*np.pi/180.)*np.cos(phi2_prog*np.pi/180.),np.sin(phi2_prog*np.pi/180.)])
+    vec_phi12_prog = np.array([
+        np.cos(phi1_prog*np.pi/180.)*np.cos(phi2_prog*np.pi/180.),
+        np.sin(phi1_prog*np.pi/180.)*np.cos(phi2_prog*np.pi/180.),
+        np.sin(phi2_prog*np.pi/180.)
+    ])
 
     vec_radec_prog = np.linalg.solve(R_phi12_radec,vec_phi12_prog)
-    
+
     ra_prog = np.arctan2(vec_radec_prog[1],vec_radec_prog[0])*180./np.pi
     dec_prog = np.arcsin(vec_radec_prog[2]/np.linalg.norm(vec_radec_prog))*180./np.pi
 
     gc_prog = SkyCoord(ra=ra_prog*u.degree,dec=dec_prog*u.degree,frame='icrs')
-    
+
     l_prog = np.array(gc_prog.galactic.l)
     b_prog = np.array(gc_prog.galactic.b)
 
-    #mu_phi1cosphi2_prog = -12.4
-    #mu_phi2_prog = -2.9
-
     vlsr = np.array([Usun,Vsun+V0,Wsun])
-    
-    M_UVW_muphi12_prog = np.array([[np.cos(phi1_prog*np.pi/180.)*np.cos(phi2_prog*np.pi/180.),-np.sin(phi1_prog*np.pi/180.),-np.cos(phi1_prog*np.pi/180.)*np.sin(phi2_prog*np.pi/180.)],[np.sin(phi1_prog*np.pi/180.)*np.cos(phi2_prog*np.pi/180.),np.cos(phi1_prog*np.pi/180.),-np.sin(phi1_prog*np.pi/180.)*np.sin(phi2_prog*np.pi/180.)],[np.sin(phi2_prog*np.pi/180.),0.,np.cos(phi2_prog*np.pi/180.)]])
+
+    cos_phi1 = np.cos(phi1_prog * np.pi / 180.)
+    sin_phi1 = np.sin(phi1_prog * np.pi / 180.)
+    cos_phi2 = np.cos(phi2_prog * np.pi / 180.)
+    sin_phi2 = np.sin(phi2_prog * np.pi / 180.)
+    M_UVW_muphi12_prog = np.array([
+        [cos_phi1 * cos_phi2, -sin_phi1, -cos_phi1 * sin_phi2],
+        [sin_phi1 * cos_phi2, cos_phi1, -sin_phi1 * sin_phi2],
+        [sin_phi2, 0. , cos_phi2]])
 
     k_mu = 4.74047
 
     uvw_stationary = -vlsr
 
-    vec_vr_muphi1_muphi2_stationary = np.dot(M_UVW_muphi12_prog.T,np.dot(R_phi12_radec,np.dot(a_g,uvw_stationary)))
+    vec_vr_muphi1_muphi2_stationary = np.dot(
+        M_UVW_muphi12_prog.T,np.dot(R_phi12_radec,np.dot(a_g,uvw_stationary)))
     vec_vr_muphi1_muphi2_stationary[0] = 0. # no correction for radial velocity, i want our radial velocity to be the los one
 
     vec_vr_muphi1_muphi2_prog = np.array([rv_prog,k_mu*dist_prog*mu_phi1cosphi2_prog,k_mu*dist_prog*mu_phi2_prog]) #+ vec_vr_muphi1_muphi2_stationary
-    
+
     vx_prog,vy_prog,vz_prog = np.dot(a_g.T,np.dot(R_phi12_radec.T,np.dot(M_UVW_muphi12_prog,vec_vr_muphi1_muphi2_prog))) + vlsr
 
     x_prog, y_prog, z_prog = np.array([-R0,0.,0.])+dist_prog*np.array([np.cos(l_prog*np.pi/180.)*np.cos(b_prog*np.pi/180.),np.sin(l_prog*np.pi/180.)*np.cos(b_prog*np.pi/180.),np.sin(b_prog*np.pi/180.)])
 
     vx,vy,vz = vx_prog,vy_prog,vz_prog
-    
+
     x,y,z = x_prog,y_prog,z_prog
 
     gc = SkyCoord(b=b_lmc*u.radian,l=l_lmc*u.radian,frame='galactic')
-    
+
     x_lmc,y_lmc,z_lmc = np.array([-R0,0.,0.])+dist_lmc/1000.*np.array([np.cos(l_lmc)*np.cos(b_lmc),np.sin(l_lmc)*np.cos(b_lmc),np.sin(b_lmc)])
 
     vx_lmc,vy_lmc,vz_lmc = gal_uvw.gal_uvw(distance=dist_lmc,ra=np.array(gc.icrs.ra),dec=np.array(gc.icrs.dec),lsr=np.array([-Usun,0.,Wsun]),pmra=mu_alpha_lmc,pmdec=mu_delta_lmc,vrad=rv_lmc)
 
     vy_lmc += Vsun+V0
     vx_lmc = -vx_lmc
-    
-    # print('./a.out {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19} {20} {21} {22} {23} {24} {25} {26}'.format(x,y,z,vx,vy,vz,M_LMC,rs_LMC,x_lmc,y_lmc,z_lmc,vx_lmc,vy_lmc,vz_lmc,Mprog,tmax,M200,rs,c200,x_sat,y_sat,z_sat,vx_sat,vy_sat,vz_sat,pid,M_sat))
-    os.system('./a.out {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19} {20} {21} {22} {23} {24} {25} {26}, {27}'.format(x,y,z,vx,vy,vz,M_LMC,rs_LMC,x_lmc,y_lmc,z_lmc,vx_lmc,vy_lmc,vz_lmc,Mprog,tmax,M200,rs,c200,x_sat,y_sat,z_sat,vx_sat,vy_sat,vz_sat,pid,M_sat,sr))
 
-    try:
-        data = np.genfromtxt(join('final_stream','final_stream_{0}.txt'.format(pid)))
-    except:
-        return -np.inf
+    # Run binary and read data
+    cmd = '{28} {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} '\
+        '{16} {17} {18} {19} {20} {21} {22} {23} {24} {25} {26}, {27}'.format(
+            x, y, z, vx, vy, vz, M_LMC, rs_LMC, x_lmc, y_lmc, z_lmc,
+            vx_lmc, vy_lmc, vz_lmc, Mprog, tmax, M200, rs, c200, x_sat, y_sat, z_sat,
+            vx_sat, vy_sat, vz_sat, pid, M_sat, sr, bin_path
+        )
+    subprocess.check_call(cmd.split(' '))
+    data = np.genfromtxt('final_stream/final_stream_{}.txt'.format(pid))
 
-    if len(data)==0:
-        return -np.inf
-    
     pos = data[:,:3]
     vel = data[:,3:6]
-    
+
     pos = pos - np.array([-R0,0.,0.])
-        
+
     theta = np.arctan2(pos[:,1],pos[:,0])
     theta = np.mod(theta,2.*np.pi)
     theta[theta > np.pi] -= 2.*np.pi
@@ -204,7 +201,7 @@ def chi2_worker(mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog, dist_prog, phi2_prog
 
     phi1 = np.arctan2(vec_phi12[:,1],vec_phi12[:,0])*180./np.pi
     phi2 = np.arcsin(vec_phi12[:,2])*180./np.pi
-    
+
     vel -= vlsr
 
     #ATLAS
@@ -223,10 +220,6 @@ def chi2_worker(mu_phi1cosphi2_prog, mu_phi2_prog, rv_prog, dist_prog, phi2_prog
 
 
     return 0
-    # if chi2 == 0.:
-    #     return -np.inf
-    # else:
-    #     return -chi2
 
 '''chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-20.010377,   -1.965021,  -10.462969, -107.437575, -189.452041,  -49.937659,2)'''
 
@@ -249,22 +242,22 @@ if __name__=='__main__':
 
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-13.855882,-11.527033,-42.728755,48.538603,136.61262,-9.013355,0.00075,100555)
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-4.703102,-20.535064,-23.575307,69.868852,147.045624,39.728405,0.0005,10066)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-8.089494,-16.237244,-31.54951,70.734234,138.122854,27.597337,0.002,10055)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-15.134876,-9.588946,-45.217458,42.73426,139.052821,-16.777925,0.001,1003)
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-15.134876,-9.588946,-45.217458,42.73426,139.052821,-16.777925,0.00075,10044)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-8.33438,15.062839,-17.556942,98.015064,189.15073,146.646894,0.001,101)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-15.402457,-32.018567,-29.379787,44.254697,95.956652,7.813829,0.001,102)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,5.649581,-3.811265,-22.887055,59.186669,195.009433,100.899814,0.001,103)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-35.449946,-9.994334,-27.586293,-14.539456,146.940119,24.801512,0.001,104)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-5.444992,1.889605,0.239211,278.448404,280.564033,195.004059,0.001,105)
-    
+
     # chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,-13.781209,-10.508278,-49.918173,42.332814,135.641759,-35.040883,0.001,106)
 
     # print('module 3: this should not appear')

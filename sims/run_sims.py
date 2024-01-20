@@ -1,6 +1,3 @@
-# from subhalo_impact import chi_eval
-from multiprocessing import Process
-from multiprocessing import Pool
 import itertools
 
 import initial_stream
@@ -8,29 +5,27 @@ import subhalo_orbit
 import stream_impact
 from rotation_matrix import obs_from_pos6d
 import numpy as np
-<<<<<<< HEAD
 import os
-=======
 import h5py
->>>>>>> 2d116b9ddb07ae25b9ce3433cb33e0f9efd62829
 
-# import sys
 
-def run_sims(nsims=1000):
-    pool = Pool()
-    logM_array = np.random.uniform(-5,1,nsims)
-    vz_array = np.random.uniform(-50,0,nsims)
-    pool.map(run_sim, zip(logM_array, vz_array))        
+# def run_sims(nsims=1000):
+#     pool = Pool()
+#     logM_array = np.random.uniform(-5,1,nsims)
+#     vz_array = np.random.uniform(-50,0,nsims)
+#     pool.map(run_sim, zip(logM_array, vz_array))
 
-def run_sim(params):
+def run_sim(params, pid):
     logM_sat, vz = params
     M_sat = 10**logM_sat
     # M_sat = 10**float(sys.argv[1])
     # vz = 10**float(sys.argv[2])
     rs_sat = 1.05 * (M_sat*10*10)**0.5
-    
-    pid = calculate_pid(logM_sat, vz) 
-    
+
+    print(pid)
+
+    # pid = calculate_pid(logM_sat, vz)
+
     r = 0.2 # impact parameter in kpc (distance from stream to sat)
     phi = 250 # angle around stream in dec
     vphi = 35  # velocity around stream in km/s
@@ -50,27 +45,12 @@ def run_sim(params):
     simulate_stream(r,phi,vphi,vz,M_sat,tmax,t_a,phi_a,rs_sat,pid)
 
 
-def calculate_pid(logM_sat, vz):
-    pid = '%i'%(logM_sat*1000) + '%i'%(-1*vz*1000)
-    return int(pid)
-
-def calculate_pid_old(log_Msat, vz):
-    pid = 0
-    log_Msat_round = round(log_Msat, 3)
-    vz_round = round(vz, 3)
-    if log_Msat_round >= 0:
-        pid = log_Msat_round * 1e6
-    else: 
-        pid = abs(log_Msat_round) * 1e6 + 1e7
-    if  vz_round >= 0: 
-        pid += vz_round * 10
-    else:
-        pid += abs(vz_round) * 10 + 1e3
-    return int(pid)
-
 def simulate_stream(r, phi, vphi, vz, M_sat, tmax, t_a, phi_a, rs_sat, pid):
+    print('0')
     SH_x, SH_y, SH_z, SH_vx, SH_vy, SH_vz, dunno = initial_stream.chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15,t_a,tmax,int(pid))
+    print('1')
     sat_x, sat_y, sat_z, sat_vx, sat_vy, sat_vz = subhalo_orbit.chi2_eval(SH_x, SH_y, SH_z, SH_vx, SH_vy, SH_vz,r,phi,vphi,vz,tmax,t_a,phi_a,int(pid))
+    print('2')
     chi = stream_impact.chi2_eval(-0.38297458,   -0.87059476, -109.48359169,   21.8659734 , 0.70106313,15, sat_x, sat_y, sat_z, sat_vx, sat_vy, sat_vz, tmax,M_sat,rs_sat,int(pid))
 
     os.remove('orbits/orbit_%i.txt' %pid)
@@ -78,13 +58,13 @@ def simulate_stream(r, phi, vphi, vz, M_sat, tmax, t_a, phi_a, rs_sat, pid):
     os.remove('final_coords/final_coords_%i.txt' %pid)
 
     # save observables as a new file after simulating the stream
-   
+
     # save_observables_hdf5(pid)
     save_observables_hdf5(pid)
 
 
-R_phi12_radec = np.array([[0.83697865, 0.29481904, -0.4610298], 
-                          [0.51616778, -0.70514011, 0.4861566], 
+R_phi12_radec = np.array([[0.83697865, 0.29481904, -0.4610298],
+                          [0.51616778, -0.70514011, 0.4861566],
                           [0.18176238, 0.64487142, 0.74236331]])
 
 def save_observables_txt(pid):
@@ -127,19 +107,15 @@ def read_observables_hdf5(hdf5file):
     f.close()
     return phi1, phi2, dist, pm1, pm2, vr
 
-
-
-def calculate_parameters_from_pid(pid):
-    # pid as a string taken from filename
-    if pid[0]=='-':
-        log_Msat = -(int(pid[1:5])/1000)
-        vz = -(int(pid[5:])/1000)
-
-    else:
-        log_Msat = int(pid[:3])/1000
-        vz = -(int(pid[3:])/1000)
-
-    return log_Msat, vz
-
 if __name__ == '__main__':
-    run_sims(nsims=10000) 
+    nsims = 1000
+    logM_array = np.random.uniform(-5, 1, nsims)
+    vz_array = np.random.uniform(-50, 0, nsims)
+
+    for i in range(0, 5):
+        try:
+            pid = i
+            run_sim([logM_array[i], vz_array[i]], pid)
+            print(i)
+        except Exception as e:
+            print(e)

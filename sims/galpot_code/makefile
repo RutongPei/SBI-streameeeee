@@ -87,9 +87,11 @@ obj/libPyGalPot.so:	obj/PyGalPot GalPot
 PyGalPot.exe: obj/PyGalPot GalPot obj/libPyGalPot.so
 			$(CPP) $(MFLAGS) -o $@ obj/libPyGalPot.so  -Lobj -lPot -lOther -lm
 
-
 %.exe:	%.cc GalPot Other
 	$(CPP) $(MFLAGS) -o $@ $<  -Lobj -lPot -lOther -lm
+
+
+
 
 clean:
 	rm -f obj/* *.exe
