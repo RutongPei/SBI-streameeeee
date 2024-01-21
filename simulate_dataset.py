@@ -3,6 +3,7 @@ import os
 import shutil
 import sys
 import h5py
+import time
 from typing import Optional, Tuple, Union
 
 sys.path.append('/mnt/home/tnguyen/projects/sbi_stream_simulations/sims')
@@ -107,7 +108,6 @@ def run_single_sim(
 
     return chi
 
-
 def process_stream(pid):
     """ Process the stream data into observables """
 
@@ -133,7 +133,6 @@ def process_stream(pid):
         f.create_dataset('pm1', data=pm1, compression='gzip')
         f.create_dataset('pm2', data=pm2, compression='gzip')
         f.create_dataset('vr', data=vr, compression='gzip')
-
 
 def simulate_dataset(config: config_dict.ConfigDict, workdir: str):
     """ Simulate a dataset of streams with subhalo impacts given the parameters """
@@ -180,9 +179,10 @@ def simulate_dataset(config: config_dict.ConfigDict, workdir: str):
             # update progress bar and pid
             curr_pid += 1
             pbar.update(1)
-        except:
+        except Exception as e:
             logging.warning(
                 f'Failed to simulate stream {curr_pid} with parameters {params}')
+            logging.warning(e)
             continue
     pbar.close()
 
@@ -198,7 +198,7 @@ def simulate_dataset(config: config_dict.ConfigDict, workdir: str):
     # save the simulation parameters as a CSV table
     logging.info('Saving simulation parameters...')
     all_params = pd.DataFrame(all_params)
-    all_params.to_csv(os.path.join(workdir, 'params.csv'), index=True)
+    all_params.to_csv('labels.csv', index=True)
 
     return all_params
 
@@ -215,4 +215,8 @@ if __name__ == "__main__":
     FLAGS(sys.argv)
 
     # Start training run
+    t1 = time.time()
     simulate_dataset(config=FLAGS.config, workdir=FLAGS.config.workdir)
+    t2 = time.time()
+
+    logging.info(f'Simulation completed in {t2-t1:.2f} seconds')

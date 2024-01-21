@@ -5,7 +5,7 @@ def get_config():
     config = config_dict.ConfigDict()
 
     # working directory
-    config.workdir = './simulation_output/test'
+    config.workdir = './output'
     config.binary_dir = './binaries'
     config.potential_dir = './pot'
     config.save_observables_only = False
